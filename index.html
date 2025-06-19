@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Heron Valley PACE Tracker</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 480px;
+    margin: auto;
+    padding: 20px;
+    background: #f9f9f9;
+  }
+  h1 {
+    text-align: center;
+    color: #2a7ae2;
+  }
+  label {
+    font-weight: bold;
+    margin-top: 15px;
+    display: block;
+  }
+  input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+  button {
+    background-color: #2a7ae2;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  button:hover {
+    background-color: #1f5bbf;
+  }
+  #summaryTable {
+    margin-top: 30px;
+    width: 100%;
+    border-collapse: collapse;
+  }
+  #summaryTable th, #summaryTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  #summaryTable th {
+    background-color: #2a7ae2;
+    color: white;
+  }
+  .hidden {
+    display: none;
+  }
+  #message {
+    margin-top: 15px;
+    color: green;
+    font-weight: bold;
+  }
+  @media (max-width: 500px) {
+    body {
+      padding: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>Heron Valley PACE Volunteer Tracker</h1>
+
+<div id="formSection">
+  <label for="name">Name *</label>
+  <input type="text" id="name" placeholder="Your full name" required />
+
+  <label for="date">Date (MM/DD/YYYY) *</label>
+  <input type="date" id="date" required />
+
+  <label for="activity">Activity *</label>
+  <input type="text" id="activity" placeholder="E.g., Music, Art" required />
+
+  <label for="hours">Time Volunteered (hours) *</label>
+  <input type="number" id="hours" min="0" step="0.1" placeholder="e.g., 1.5" required />
+
+  <label for="groupSize">Group Size (optional)</label>
+  <input type="number" id="groupSize" min="1" placeholder="Number of people, default 1" />
+
+  <button id="submitBtn">Submit Entry</button>
+  <button id="showSummaryBtn" style="background:#555; margin-top:10px;">View Summary</button>
+  <div id="message"></div>
+</div>
+
+<div id="summarySection" class="hidden">
+  <h2>Summary of Volunteer Hours</h2>
+  <table id="summaryTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Month</th>
+        <th>Year</th>
+        <th>Total Hours</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <button id="backBtn" style="background:#555; margin-top:20px;">Back to Form</button>
+</div>
+
+<script>
+// Helper: format date MM/DD/YYYY
+function formatDate(date) {
+  const d = new Date(date);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${mm}/${dd}/${yyyy}`;
+}
+
+// Save entry to localStorage
+function saveEntry(entry) {
+  let entries = JSON.parse(localStorage.getItem('paceEntries')) || [];
+  entries.push(entry);
+  localStorage.setItem('paceEntries', JSON.stringify(entries));
+}
+
+// Calculate summary data
+function calculateSummary() {
+  const entries = JSON.parse(localStorage.getItem('paceEntries')) || [];
+  // Structure: {name: {monthYear: hours, year: hours}}
+  const summary = {};
+
+  entries.forEach(e => {
+    const name = e.name.trim();
+    if (!name) return;
+
+    const dateObj = new Date(e.date);
+    if (isNaN(dateObj)) return;
+
+    const monthYear = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
+    const year = dateObj.getFullYear().toString();
+    const groupSize = e.groupSize && e.groupSize > 0 ? e.groupSize : 1;
+    const hours = parseFloat(e.hours) || 0;
+
+    if (!summary[name]) summary[name] = {};
+
+    // Add hours * groupSize for monthYear
+    summary[name][monthYear] = (summary[name][monthYear] || 0) + hours * groupSize;
+
+    // Add hours * groupSize for year total
+    summary[name][year] = (summary[name][year] || 0) + hours * groupSize;
+  });
+
+  return summary;
+}
+
+// Display summary table
+function displaySummary() {
+  const summary = calculateSummary();
+  const tbody = document.querySelector('#summaryTable tbody');
+  tbody.innerHTML = '';
+
+  for (const [name, data] of Object.entries(summary)) {
+    // For each month & year pair, create rows
+    for (const period in data) {
+      const tr = document.createElement('tr');
+      const tdName = document.createElement('td');
+      tdName.textContent = name;
+      const tdPeriod = document.createElement('td');
+      tdPeriod.textContent = period.includes(' ') ? period : ''; // show month for monthYear, empty for year row
+      const tdYear = document.createElement('td');
+      tdYear.textContent = period.includes(' ') ? period.split(' ')[1] : period; // year portion
+      const tdHours = document.createElement('td');
+      tdHours.textContent = data[period].toFixed(2);
+      tr.append(tdName, tdPeriod, tdYear, tdHours);
+      tbody.appendChild(tr);
+    }
+  }
+}
+
+// Event listeners
+document.getElementById('submitBtn').addEventListener('click', () => {
+  const name = document.getElementById('name').value.trim();
+  const date = document.getElementById('date').value;
+  const activity = document.getElementById('activity').value.trim();
+  const hours = document.getElementById('hours').value;
+  let groupSize = document.getElementById('groupSize').value;
+
+  if (!name || !date || !activity || !hours) {
+    alert('Please fill in all required fields.');
+    return;
+  }
+
+  if (groupSize === '' || parseInt(groupSize) < 1) {
+    groupSize = 1;
+  }
+
+  // Save entry
+  saveEntry({name, date, activity, hours, groupSize: parseInt(groupSize)});
+  document.getElementById('message').textContent = 'Entry saved successfully!';
+
+  // Clear inputs
+  document.getElementById('name').value = '';
+  document.getElementById('date').value = '';
+  document.getElementById('activity').value = '';
+  document.getElementById('hours').value = '';
+  document.getElementById('groupSize').value = '';
+});
+
+document.getElementById('showSummaryBtn').addEventListener('click', () => {
+  displaySummary();
+  document.getElementById('formSection').classList.add('hidden');
+  document.getElementById('summarySection').classList.remove('hidden');
+  document.getElementById('message').textContent = '';
+});
+
+document.getElementById('backBtn').addEventListener('click', () => {
+  document.getElementById('summarySection').classList.add('hidden');
+  document.getElementById('formSection').classList.remove('hidden');
+  document.getElementById('message').textContent = '';
+});
+</script>
+
+</body>
+</html>
