@@ -1,225 +1,558 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Heron Valley PACE Tracker</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    max-width: 480px;
-    margin: auto;
-    padding: 20px;
-    background: #f9f9f9;
-  }
-  h1 {
-    text-align: center;
-    color: #2a7ae2;
-  }
-  label {
-    font-weight: bold;
-    margin-top: 15px;
-    display: block;
-  }
-  input, select, button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    font-size: 16px;
-    box-sizing: border-box;
-  }
-  button {
-    background-color: #2a7ae2;
-    color: white;
-    border: none;
-    cursor: pointer;
-    margin-top: 20px;
-  }
-  button:hover {
-    background-color: #1f5bbf;
-  }
-  #summaryTable {
-    margin-top: 30px;
-    width: 100%;
-    border-collapse: collapse;
-  }
-  #summaryTable th, #summaryTable td {
-    border: 1px solid #ddd;
-    padding: 8px;
-  }
-  #summaryTable th {
-    background-color: #2a7ae2;
-    color: white;
-  }
-  .hidden {
-    display: none;
-  }
-  #message {
-    margin-top: 15px;
-    color: green;
-    font-weight: bold;
-  }
-  @media (max-width: 500px) {
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PACE Volunteer Log</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
+  <style>
     body {
-      padding: 10px;
+      font-family: 'Quicksand', sans-serif;
+      background: #f0f4ff;
+      color: #333;
+      padding: 20px;
+      max-width: 480px;
+      margin: auto;
     }
-  }
-</style>
+
+    .logo {
+      display: block;
+      margin: 0 auto 10px;
+      width: 100px;
+      border-radius: 8px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #6a5acd;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #444;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 4px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      background: #6a5acd;
+      color: white;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #5747c2;
+    }
+
+    .alt-btn {
+      background: #ffaf45;
+      margin-top: 10px;
+    }
+
+    .alt-btn:hover {
+      background: #e69c38;
+    }
+
+    #summarySection {
+      margin-top: 30px;
+      display: none;
+    }
+
+    #summaryTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    #summaryTable th, #summaryTable td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+
+    #summaryTable th {
+      background-color: #6a5acd;
+      color: white;
+    }
+
+    #message {
+      color: green;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
 
-<h1>Heron Valley PACE Volunteer Tracker</h1>
+  <!-- Logo is included below -->
+  <img src="logo.jpg" alt="PACE Logo" class="logo" />
 
-<div id="formSection">
-  <label for="name">Name *</label>
-  <input type="text" id="name" placeholder="Your full name" required />
+  <h1>✨ PACE Volunteer Log</h1>
 
-  <label for="date">Date (MM/DD/YYYY) *</label>
-  <input type="date" id="date" required />
+  <div id="formSection">
+    <label for="name">👤 Name</label>
+    <input type="text" id="name" placeholder="Your full name" />
 
-  <label for="activity">Activity *</label>
-  <input type="text" id="activity" placeholder="E.g., Music, Art" required />
+    <label for="date">📅 Date</label>
+    <input type="date" id="date" />
 
-  <label for="hours">Time Volunteered (hours) *</label>
-  <input type="number" id="hours" min="0" step="0.1" placeholder="e.g., 1.5" required />
+    <label for="activity">🎨 Activity</label>
+    <input type="text" id="activity" placeholder="e.g., Music, Gardening" />
 
-  <label for="groupSize">Group Size (optional)</label>
-  <input type="number" id="groupSize" min="1" placeholder="Number of people, default 1" />
+    <label for="hours">⏱️ Time Volunteered (hours)</label>
+    <input type="number" id="hours" step="0.1" placeholder="2.5" />
 
-  <button id="submitBtn">Submit Entry</button>
-  <button id="showSummaryBtn" style="background:#555; margin-top:10px;">View Summary</button>
-  <div id="message"></div>
-</div>
+    <label for="groupSize">👥 Group Size (optional)</label>
+    <input type="number" id="groupSize" placeholder="1" />
 
-<div id="summarySection" class="hidden">
-  <h2>Summary of Volunteer Hours</h2>
-  <table id="summaryTable">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Month</th>
-        <th>Year</th>
-        <th>Total Hours</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <button id="backBtn" style="background:#555; margin-top:20px;">Back to Form</button>
-</div>
+    <button onclick="submitEntry()">✅ Submit</button>
+    <button class="alt-btn" onclick="showSummary()">📊 View Summary</button>
+    <div id="message"></div>
+  </div>
 
-<script>
-// Helper: format date MM/DD/YYYY
-function formatDate(date) {
-  const d = new Date(date);
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  const yyyy = d.getFullYear();
-  return `${mm}/${dd}/${yyyy}`;
-}
+  <div id="summarySection">
+    <h2 style="text-align:center; color:#6a5acd;">📋 Volunteer Summary</h2>
+    <table id="summaryTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Month</th>
+          <th>Year</th>
+          <th>Hours</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button class="alt-btn" onclick="goBack()">🔙 Back to Form</button>
+  </div>
 
-// Save entry to localStorage
-function saveEntry(entry) {
-  let entries = JSON.parse(localStorage.getItem('paceEntries')) || [];
-  entries.push(entry);
-  localStorage.setItem('paceEntries', JSON.stringify(entries));
-}
-
-// Calculate summary data
-function calculateSummary() {
-  const entries = JSON.parse(localStorage.getItem('paceEntries')) || [];
-  // Structure: {name: {monthYear: hours, year: hours}}
-  const summary = {};
-
-  entries.forEach(e => {
-    const name = e.name.trim();
-    if (!name) return;
-
-    const dateObj = new Date(e.date);
-    if (isNaN(dateObj)) return;
-
-    const monthYear = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
-    const year = dateObj.getFullYear().toString();
-    const groupSize = e.groupSize && e.groupSize > 0 ? e.groupSize : 1;
-    const hours = parseFloat(e.hours) || 0;
-
-    if (!summary[name]) summary[name] = {};
-
-    // Add hours * groupSize for monthYear
-    summary[name][monthYear] = (summary[name][monthYear] || 0) + hours * groupSize;
-
-    // Add hours * groupSize for year total
-    summary[name][year] = (summary[name][year] || 0) + hours * groupSize;
-  });
-
-  return summary;
-}
-
-// Display summary table
-function displaySummary() {
-  const summary = calculateSummary();
-  const tbody = document.querySelector('#summaryTable tbody');
-  tbody.innerHTML = '';
-
-  for (const [name, data] of Object.entries(summary)) {
-    // For each month & year pair, create rows
-    for (const period in data) {
-      const tr = document.createElement('tr');
-      const tdName = document.createElement('td');
-      tdName.textContent = name;
-      const tdPeriod = document.createElement('td');
-      tdPeriod.textContent = period.includes(' ') ? period : ''; // show month for monthYear, empty for year row
-      const tdYear = document.createElement('td');
-      tdYear.textContent = period.includes(' ') ? period.split(' ')[1] : period; // year portion
-      const tdHours = document.createElement('td');
-      tdHours.textContent = data[period].toFixed(2);
-      tr.append(tdName, tdPeriod, tdYear, tdHours);
-      tbody.appendChild(tr);
+  <<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PACE Volunteer Log</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background-color: #f0f4ff;
+      color: #333;
+      max-width: 480px;
+      margin: 20px auto;
+      padding: 20px;
+      position: relative;
     }
-  }
-}
 
-// Event listeners
-document.getElementById('submitBtn').addEventListener('click', () => {
-  const name = document.getElementById('name').value.trim();
-  const date = document.getElementById('date').value;
-  const activity = document.getElementById('activity').value.trim();
-  const hours = document.getElementById('hours').value;
-  let groupSize = document.getElementById('groupSize').value;
+    /* Simple pixel people on left and right */
+    .side-characters-left, .side-characters-right {
+      position: fixed;
+      top: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      user-select: none;
+    }
 
-  if (!name || !date || !activity || !hours) {
-    alert('Please fill in all required fields.');
-    return;
-  }
+    .side-characters-left {
+      left: 10px;
+    }
 
-  if (groupSize === '' || parseInt(groupSize) < 1) {
-    groupSize = 1;
-  }
+    .side-characters-right {
+      right: 10px;
+    }
 
-  // Save entry
-  saveEntry({name, date, activity, hours, groupSize: parseInt(groupSize)});
-  document.getElementById('message').textContent = 'Entry saved successfully!';
+    .pixel-person {
+      width: 20px;
+      height: 28px;
+      background: #6a5acd;
+      border: 2px solid #463e96;
+      border-radius: 3px;
+      position: relative;
+      box-shadow: inset 0 3px 0 #9c8ffc;
+    }
 
-  // Clear inputs
-  document.getElementById('name').value = '';
-  document.getElementById('date').value = '';
-  document.getElementById('activity').value = '';
-  document.getElementById('hours').value = '';
-  document.getElementById('groupSize').value = '';
-});
+    /* Head */
+    .pixel-person::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 3px;
+      width: 14px;
+      height: 14px;
+      background: #f9d5b8;
+      border: 1px solid #b38658;
+      border-radius: 50%;
+      box-shadow: 1px 1px #d9b57a;
+    }
 
-document.getElementById('showSummaryBtn').addEventListener('click', () => {
-  displaySummary();
-  document.getElementById('formSection').classList.add('hidden');
-  document.getElementById('summarySection').classList.remove('hidden');
-  document.getElementById('message').textContent = '';
-});
+    /* Simple hair variants */
+    .hair1::after {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 3px;
+      width: 14px;
+      height: 7px;
+      background: #4a342e;
+      border-radius: 3px 3px 0 0;
+    }
 
-document.getElementById('backBtn').addEventListener('click', () => {
-  document.getElementById('summarySection').classList.add('hidden');
-  document.getElementById('formSection').classList.remove('hidden');
-  document.getElementById('message').textContent = '';
-});
-</script>
+    .hair2::after {
+      content: '';
+      position: absolute;
+      top: -9px;
+      left: 3px;
+      width: 14px;
+      height: 9px;
+      background: #d2691e;
+      border-radius: 7px 7px 0 0;
+    }
 
+    .hair3::after {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 3px;
+      width: 14px;
+      height: 5px;
+      background: #222;
+      border-radius: 3px 3px 0 0;
+      box-shadow: inset 0 1px 2px #444;
+    }
+
+    h1 {
+      text-align: center;
+      color: #6a5acd;
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #444;
+    }
+
+    input {
+      width: 100%;
+      padding: 9px;
+      margin-top: 4px;
+      font-size: 14px;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      font-size: 14px;
+      background-color: #6a5acd;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #5747c2;
+    }
+
+    .alt-btn {
+      background-color: #ffaf45;
+      margin-top: 8px;
+    }
+
+    .alt-btn:hover {
+      background-color: #e69c38;
+    }
+
+    #summarySection {
+      margin-top: 30px;
+      display: none;
+    }
+
+    #summaryTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 13px;
+    }
+
+    #summaryTable th,
+    #summaryTable td {
+      border: 1px solid #ccc;
+      padding: 7px;
+    }
+
+    #summaryTable th {
+      background-color: #6a5acd;
+      color: white;
+    }
+
+    #message {
+      margin-top: 10px;
+      font-size: 13px;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Pixel people left -->
+  <div class="side-characters-left">
+    <div class="pixel-person hair1" title="Person 1"></div>
+    <div class="pixel-person hair2" title="Person 2"></div>
+    <div class="pixel-person hair3" title="Person 3"></div>
+  </div>
+
+  <!-- Pixel people right -->
+  <div class="side-characters-right">
+    <div class="pixel-person hair3" title="Person 4"></div>
+    <div class="pixel-person hair1" title="Person 5"></div>
+    <div class="pixel-person hair2" title="Person 6"></div>
+  </div>
+
+  <h1>✨ PACE Volunteer Log</h1>
+
+  <div id="formSection">
+    <label for="name">Name</label>
+    <input type="text" id="name" placeholder="Your full name" />
+
+    <label for="date">Date</label>
+    <input type="date" id="date" />
+
+    <label for="activity">Activity</label>
+    <input type="text" id="activity" placeholder="e.g., Music, Gardening" />
+
+    <label for="hours">Time Volunteered (hours)</label>
+    <input type="number" id="hours" step="0.1" placeholder="2.5" />
+
+    <label for="groupSize">Group Size (optional)</label>
+    <input type="number" id="groupSize" placeholder="1" />
+
+    <button onclick="submitEntry()">Submit</button>
+    <button class="alt-btn" onclick="showSummary()">View Summary</button>
+
+    <div id="message"></div>
+  </div>
+
+  <div id="summarySection">
+    <h2 style="text-align:center; color:#6a5acd;">Volunteer Summary</h2>
+    <table id="summaryTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Month</th>
+          <th>Year</th>
+          <th>Hours</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button class="alt-btn" onclick="goBack()">Back to Form</button>
+  </div>
+
+  <script>
+    function submitEntry() {
+      var name = document.getElementById('name').value.trim();
+      var date = document.getElementById('date').value;
+      var activity = document.getElementById('activity').value.trim();
+      var hours = parseFloat(document.getElementById('hours').value);
+      var groupSize = parseInt(document.getElementById('groupSize').value);
+
+      if (name === '' || date === '' || activity === '' || isNaN(hours)) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      if (isNaN(groupSize) || groupSize < 1) {
+        groupSize = 1;
+      }
+
+      var entry = {
+        name: name,
+        date: date,
+        activity: activity,
+        hours: hours,
+        groupSize: groupSize
+      };
+
+      var entries = localStorage.getItem('paceEntries');
+      if (!entries) {
+        entries = [];
+      } else {
+        entries = JSON.parse(entries);
+      }
+
+      entries.push(entry);
+      localStorage.setItem('paceEntries', JSON.stringify(entries));
+
+      document.getElementById('message').textContent = 'Saved!';
+
+      // Clear form
+      document.getElementById('name').value = '';
+      document.getElementById('date').value = '';
+      document.getElementById('activity').value = '';
+      document.getElementById('hours').value = '';
+      document.getElementById('groupSize').value = '';
+    }
+
+    function showSummary() {
+      var entries = localStorage.getItem('paceEntries');
+      if (!entries) {
+        entries = [];
+      } else {
+        entries = JSON.parse(entries);
+      }
+
+      var summary = {};
+
+      for (var i = 0; i < entries.length; i++) {
+        var entry = entries[i];
+        var dateObj = new Date(entry.date);
+        var name = entry.name;
+        var month = dateObj.toLocaleString('default', { month: 'long' });
+        var year = dateObj.getFullYear();
+        var key = name + '-' + month + '-' + year;
+
+        var groupHours = entry.hours * (entry.groupSize || 1);
+
+        if (!summary[key]) {
+          summary[key] = {
+            name: name,
+            month: month,
+            year: year,
+            hours: 0
+          };
+        }
+        summary[key].hours += groupHours;
+      }
+
+      var tbody = document.querySelector('#summaryTable tbody');
+      tbody.innerHTML = '';
+
+      for (var k in summary) {
+        var row = summary[k];
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + row.name + '</td>' +
+          '<td>' + row.month + '</td>' +
+          '<td>' + row.year + '</td>' +
+          '<td>' + row.hours.toFixed(2) + '</td>';
+        tbody.appendChild(tr);
+      }
+
+      document.getElementById('formSection').style.display = 'none';
+      document.getElementById('summarySection').style.display = 'block';
+      document.getElementById('message').textContent = '';
+    }
+
+    function goBack() {
+      document.getElementById('summarySection').style.display = 'none';
+      document.getElementById('formSection').style.display = 'block';
+    }
+  </script>
 </body>
 </html>
+<!-- Logo container -->
+<div class="logo-container">
+  <div class="logo-icon">
+    <!-- Simple abstract symbol: a "H" and "V" stacked stylized -->
+    <div class="bar bar1"></div>
+    <div class="bar bar2"></div>
+    <div class="bar bar3"></div>
+  </div>
+  <div class="logo-text">
+    <span>Huron Valley</span><br />
+    <strong>PACE</strong>
+  </div>
+</div>
+
+<style>
+  .logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 15px;
+  }
+
+  .logo-icon {
+    width: 48px;
+    height: 48px;
+    position: relative;
+  }
+
+  .bar {
+    position: absolute;
+    background-color: #6a5acd; /* purple */
+    border-radius: 3px;
+  }
+
+  .bar1 {
+    width: 8px;
+    height: 40px;
+    left: 0;
+    top: 4px;
+  }
+
+  .bar2 {
+    width: 8px;
+    height: 40px;
+    right: 0;
+    top: 4px;
+  }
+
+  .bar3 {
+    width: 8px;
+    height: 20px;
+    top: 14px;
+    left: 20px;
+    border-radius: 3px;
+  }
+
+  .logo-text {
+    font-family: 'Quicksand', sans-serif;
+    color: #6a5acd;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.2;
+    text-align: left;
+    user-select: none;
+  }
+
+  .logo-text strong {
+    font-size: 22px;
+    display: block;
+    margin-top: 2px;
+  }
+</style>
+
+
